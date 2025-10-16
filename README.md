@@ -89,12 +89,10 @@ Feedback and contributions are welcome—new endpoints will continue to arrive t
 ## 赞助支持 | Sponsor
 
 如果本项目对你有帮助，欢迎赞助支持后续维护；You can sponsor continued development if this project proves useful:
-- 通过支付宝账号 `191341025@qq.com` 支持我 / Send a tip via Alipay to `191341025@qq.com`.
-- 当你准备好微信或支付宝收款码时，可将图片放在仓库的 `docs/sponsor.png` 并在下方展示 / Drop your QR code into `docs/sponsor.png` to display it below for quick scans.
+- 扫描下方微信/支付宝赞助码，或通过支付宝账号 `191341025@qq.com` 支持我。  
+  Scan the QR code below (WeChat/Alipay) or tip via Alipay at `191341025@qq.com`.
 
-![Sponsor QR Placeholder](docs/sponsor.png)
-
-> 收款二维码将很快补充，敬请期待。The QR code placeholder above will be updated soon.
+![Sponsor QR Code](docs/sponsor.png)
 
 ## 联系方式 | Contact
 
