@@ -58,12 +58,27 @@ The console logs `MCP Python Server started`, after which MCP-aware clients or c
 
 ## 可用接口 | Available Tools
 
-| 方法名 / Method | 说明 / Description |
-| --- | --- |
-| `listTables` | 列出当前数据库中的所有表名 / List every table in the configured database. |
-| `getTableSchema` | 返回指定表的字段定义与元数据 / Fetch column metadata for a given table. |
-| `runQuery` | 执行仅限只读的 SQL 查询并返回列与数据行 / Execute read-only SQL and return columns with rows. |
-| `getProcedureDefinition` | 获取指定存储过程的建造语句 / Retrieve the CREATE statement of a stored procedure. |
+| 方法名 / Method | 说明 / Description | 状态 / Status |
+| --- | --- | --- |
+| `listTables` | 列出当前数据库中的所有表名 / List every table in the configured database. | 已实现 / Completed |
+| `getTableSchema` | 返回指定表的字段定义与元数据 / Fetch column metadata for a given table. | 已实现 / Completed |
+| `runQuery` | 执行仅限只读的 SQL 查询并返回列与数据行 / Execute read-only SQL and return columns with rows. | 已实现 / Completed |
+| `getProcedureDefinition` | 获取指定存储过程的建造语句 / Retrieve the CREATE statement of a stored procedure. | 已实现 / Completed |
+| `listDatabases` | 列出当前连接可访问的数据库，方便跨库巡检 / List accessible databases to navigate across schemas. | 未开发 / Planned |
+| `listViews` | 查找视图名称并返回定义摘要 / Enumerate views with definition snippets. | 未开发 / Planned |
+| `getTableStats` | 汇总表的行数与数据/索引大小等统计信息 / Return row counts and size statistics for tables. | 未开发 / Planned |
+| `getIndexInfo` | 查看表上索引的列、类型与唯一性 / Inspect indexes for columns, kinds, and uniqueness. | 未开发 / Planned |
+| `findForeignKeys` | 列出外键及其关联关系 / List foreign-key constraints and relationships. | 未开发 / Planned |
+| `getTriggers` | 返回触发器列表与定义 / Fetch trigger listings and definitions. | 未开发 / Planned |
+| `sampleRows` | 抽样返回指定表的若干数据行 / Sample a handful of rows from a table. | 未开发 / Planned |
+| `searchColumns` | 关键字搜索列名或注释 / Search column names/comments by keyword. | 未开发 / Planned |
+| `describeColumn` | 输出字段类型、默认值与约束细节 / Provide type, defaults, and constraint details for a column. | 未开发 / Planned |
+| `explainQuery` | 对只读 SQL 执行 EXPLAIN，分析执行计划 / Run EXPLAIN on read-only SQL to inspect plans. | 未开发 / Planned |
+| `listProcedures` | 罗列存储过程或函数名称 / List stored procedures and functions. | 未开发 / Planned |
+| `listUsers` | 汇总实例中用户与权限信息（需相应权限） / Summarize users and privileges (where permitted). | 未开发 / Planned |
+| `getServerStatus` | 返回版本、连接数、支持引擎等服务器状态 / Return server status such as version, connections, engines. | 未开发 / Planned |
+| `compareSchemas` | 比较两个数据库或表的结构差异 / Compare schema structures between databases/tables. | 未开发 / Planned |
+| `generateDDL` | 输出完整的 CREATE TABLE 语句 / Generate full CREATE TABLE DDL. | 未开发 / Planned |
 
 ## 配置说明 | Configuration
 
