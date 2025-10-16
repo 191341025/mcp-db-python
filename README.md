@@ -64,7 +64,7 @@ The console logs `MCP Python Server started`, after which MCP-aware clients or c
 | `getTableSchema` | 返回指定表的字段定义与元数据 / Fetch column metadata for a given table. | 已实现 / Completed |
 | `runQuery` | 执行仅限只读的 SQL 查询并返回列与数据行 / Execute read-only SQL and return columns with rows. | 已实现 / Completed |
 | `getProcedureDefinition` | 获取指定存储过程的建造语句 / Retrieve the CREATE statement of a stored procedure. | 已实现 / Completed |
-| `listDatabases` | 列出当前连接可访问的数据库，方便跨库巡检 / List accessible databases to navigate across schemas. | 未开发 / Planned |
+| `listDatabases` | 列出当前连接可访问的数据库，方便跨库巡检 / List accessible databases to navigate across schemas. | 已实现 / Completed |
 | `listViews` | 查找视图名称并返回定义摘要 / Enumerate views with definition snippets. | 未开发 / Planned |
 | `getTableStats` | 汇总表的行数与数据/索引大小等统计信息 / Return row counts and size statistics for tables. | 未开发 / Planned |
 | `getIndexInfo` | 查看表上索引的列、类型与唯一性 / Inspect indexes for columns, kinds, and uniqueness. | 未开发 / Planned |

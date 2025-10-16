@@ -30,3 +30,9 @@ def get_table_schema(table_name: str) -> list:
     """获取指定表的字段结构"""
     connector = get_connector()
     return connector.get_table_schema(table_name)
+
+
+def list_databases() -> list:
+    """列出当前连接可访问的数据库"""
+    connector = get_connector()
+    return connector.list_databases()

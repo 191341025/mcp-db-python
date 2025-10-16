@@ -10,11 +10,14 @@ class MySQLConnector:
         self.connection = None
 
     def connect(self):
-        """Open a connection if not already connected."""
+        """
+        建立与 MySQL 的连接；如果已有活跃连接则直接返回，避免重复握手。
+        """
         if self.connection and self.connection.is_connected():
             return
 
         try:
+            # 使用配置中给定的连接信息初始化驱动连接
             self.connection = mysql.connector.connect(
                 host=DB_CONFIG["host"],
                 port=DB_CONFIG["port"],
@@ -30,12 +33,16 @@ class MySQLConnector:
             raise
 
     def ensure_connection(self):
-        """Make sure a live connection exists before running queries."""
+        """
+        确保当前存在一个有效的数据库连接，若断开则尝试重新连接。
+        """
         if not self.connection or not self.connection.is_connected():
             self.connect()
 
     def list_tables(self):
-        """Return all table names."""
+        """
+        返回当前选定数据库下的所有数据表名称列表。
+        """
         self.ensure_connection()
         cursor = self.connection.cursor()
         try:
@@ -45,8 +52,23 @@ class MySQLConnector:
         finally:
             cursor.close()
 
+    def list_databases(self):
+        """
+        列出当前 MySQL 会话用户可访问的所有数据库名称，便于跨库巡检。
+        """
+        self.ensure_connection()
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("SHOW DATABASES;")
+            databases = [row[0] for row in cursor.fetchall()]
+            return databases
+        finally:
+            cursor.close()
+
     def get_table_schema(self, table_name):
-        """Return column metadata for a table."""
+        """
+        返回指定数据表的字段元数据（字段名、类型、默认值等）。
+        """
         self.ensure_connection()
         cursor = self.connection.cursor(dictionary=True)
         try:
@@ -57,7 +79,9 @@ class MySQLConnector:
             cursor.close()
 
     def is_read_only_query(self, sql: str) -> bool:
-        """Check if the SQL statement is safe (read-only)."""
+        """
+        校验 SQL 是否为安全的只读语句，禁止多语句与写操作。
+        """
         stripped = sql.strip()
         if not stripped:
             return False
@@ -77,7 +101,9 @@ class MySQLConnector:
         return False
 
     def run_query(self, sql: str, params=None):
-        """Execute a read-only query and return columns and rows."""
+        """
+        执行已校验为只读的查询，并返回列名与结果行数据。
+        """
         if not self.is_read_only_query(sql):
             raise ValueError("Only read-only SQL statements are allowed.")
 
@@ -93,7 +119,9 @@ class MySQLConnector:
             cursor.close()
 
     def get_procedure_definition(self, procedure_name: str):
-        """Return CREATE statement for a stored procedure."""
+        """
+        获取指定存储过程的 CREATE 语句定义，便于分析过程逻辑。
+        """
         if not procedure_name or "`" in procedure_name or " " in procedure_name:
             raise ValueError("Invalid procedure name.")
 
@@ -109,5 +137,8 @@ class MySQLConnector:
             cursor.close()
 
     def close(self):
+        """
+        主动关闭数据库连接，释放底层资源句柄。
+        """
         if self.connection and self.connection.is_connected():
             self.connection.close()

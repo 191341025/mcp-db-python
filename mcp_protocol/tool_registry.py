@@ -2,11 +2,12 @@
 # mcp_protocol/tool_registry.py
 from tinyrpc.dispatch import RPCDispatcher
 
-from tools.schema_tools import get_table_schema, list_tables
+from tools.schema_tools import get_table_schema, list_databases, list_tables
 from tools.query_tools import get_procedure_definition, run_query
 
 
 def register_schema_tools(dispatcher: RPCDispatcher) -> None:
+    dispatcher.add_method(list_databases, name="listDatabases")
     dispatcher.add_method(list_tables, name="listTables")
     dispatcher.add_method(get_table_schema, name="getTableSchema")
 
