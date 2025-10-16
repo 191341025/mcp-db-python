@@ -92,7 +92,7 @@ Feedback and contributions are welcome—new endpoints will continue to arrive t
 - 扫描下方微信/支付宝赞助码，或通过支付宝账号 `191341025@qq.com` 支持我。  
   Scan the QR code below (WeChat/Alipay) or tip via Alipay at `191341025@qq.com`.
 
-![Sponsor QR Code](docs/sponsor.png)
+![sponsor](https://github.com/user-attachments/assets/a18f6a0e-7d7f-46b9-b5ea-532085182772)
 
 ## 联系方式 | Contact
 
