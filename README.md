@@ -86,6 +86,16 @@ The console logs `MCP Python Server started`, after which MCP-aware clients or c
 欢迎通过 Issue 或 Pull Request 提出需求；接口会持续完善以覆盖更多数据库运维与数据洞察场景。  
 Feedback and contributions are welcome—new endpoints will continue to arrive to cover broader database operations and analytics use cases.
 
+## 赞助支持 | Sponsor
+
+如果本项目对你有帮助，欢迎赞助支持后续维护；You can sponsor continued development if this project proves useful:
+- 通过支付宝账号 `191341025@qq.com` 支持我 / Send a tip via Alipay to `191341025@qq.com`.
+- 当你准备好微信或支付宝收款码时，可将图片放在仓库的 `docs/sponsor.png` 并在下方展示 / Drop your QR code into `docs/sponsor.png` to display it below for quick scans.
+
+![Sponsor QR Placeholder](docs/sponsor.png)
+
+> 收款二维码将很快补充，敬请期待。The QR code placeholder above will be updated soon.
+
 ## 联系方式 | Contact
 
 - Email: tiansenxu@gmail.com
@@ -96,5 +106,5 @@ Feel free to reach out with questions, feature requests, or collaboration propos
 
 ## 贡献指南 | Contributing
 
-欢迎提交 Issue 描述使用中的问题，也欢迎直接发起 Pull Request 贡献代码。  
-Please open issues for bugs or ideas, and submit pull requests if you would like to contribute improvements.
+欢迎提交 Issue 描述使用中的问题，也欢迎直接发起 Pull Request 贡献代码。当前 `main` 分支已开启保护，仅仓库维护者可以直接推送，请从最新 `main` 创建自己的功能分支后再提交 PR；如果你需要在本仓库启用额外的受保护分支，欢迎发送邮件至上述地址与我联系。  
+Please open issues for bugs or ideas, and submit pull requests if you would like to contribute improvements. The `main` branch is protected and only maintainers can push to it; branch off `main`, work on your feature branch, then open a PR. If you require additional protected branches for collaboration, email me at the contacts above.
