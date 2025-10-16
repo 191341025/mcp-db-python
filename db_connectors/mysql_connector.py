@@ -65,6 +65,49 @@ class MySQLConnector:
         finally:
             cursor.close()
 
+    def list_views(self, snippet_length: int = 160):
+        """
+        枚举当前数据库中的视图名称，并截取视图定义的摘要信息。
+        """
+        self.ensure_connection()
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("SHOW FULL TABLES WHERE TABLE_TYPE = 'VIEW';")
+            view_names = [row[0] for row in cursor.fetchall()]
+        finally:
+            cursor.close()
+
+        views = []
+        for view_name in view_names:
+            # 针对每个视图查询 CREATE 语句，以获取定义内容
+            cursor = self.connection.cursor()
+            try:
+                cursor.execute(f"SHOW CREATE VIEW `{view_name}`;")
+                row = cursor.fetchone()
+            finally:
+                cursor.close()
+
+            definition = ""
+            if row:
+                # SHOW CREATE VIEW 默认返回 (View, Create View, character_set_client, collation_connection)
+                definition = row[1] if len(row) > 1 else ""
+
+            # 将换行压缩为空格并截断为摘要
+            snippet = " ".join(definition.split())
+            if snippet_length and len(snippet) > snippet_length:
+                ellipsis = "..." if snippet_length > 3 else ""
+                trim_length = snippet_length - len(ellipsis)
+                snippet = snippet[:trim_length] + ellipsis
+
+            views.append(
+                {
+                    "name": view_name,
+                    "definitionSnippet": snippet,
+                }
+            )
+
+        return views
+
     def get_table_schema(self, table_name):
         """
         返回指定数据表的字段元数据（字段名、类型、默认值等）。

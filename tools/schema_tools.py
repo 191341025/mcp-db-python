@@ -36,3 +36,10 @@ def list_databases() -> list:
     """列出当前连接可访问的数据库"""
     connector = get_connector()
     return connector.list_databases()
+
+
+def list_views(snippet_length: int = 160) -> list:
+    """列出视图名称并返回定义摘要，snippet_length 控制截断长度。"""
+    connector = get_connector()
+    return connector.list_views(snippet_length=snippet_length)
+
