@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/191341025-mcp-db-python-badge.png)](https://mseep.ai/app/191341025-mcp-db-python)
+
 # MCP DB Python
 
 MCP DB Python 是一个以 Python 编写的 Model Context Protocol (MCP) 数据库服务，能够通过标准输入/输出上的 JSON-RPC 协议提供安全的数据库结构浏览与查询能力。MCP DB Python is a Python-powered Model Context Protocol (MCP) server that exposes safe database inspection and read-only querying over JSON-RPC via stdin/stdout.
