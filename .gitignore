@@ -1,5 +1,6 @@
 # Local environment config files
-.env
+# .env
+.env-66
 venv/
 # Python bytecode caches
 __pycache__/
