@@ -60,3 +60,21 @@ def find_foreign_keys(table_name: Optional[str] = None) -> list:
     """列出数据库中的外键约束，可按表名筛选具体关联。"""
     connector = get_connector()
     return connector.find_foreign_keys(table_name)
+
+
+def get_triggers(table_name: Optional[str] = None) -> list:
+    """返回触发器名称、作用表、触发时机及 SQL 定义，可按表过滤。"""
+    connector = get_connector()
+    return connector.get_triggers(table_name)
+
+
+def search_columns(keyword: str) -> list:
+    """按关键字模糊搜索列名或注释，便于定位字段。"""
+    connector = get_connector()
+    return connector.search_columns(keyword)
+
+
+def describe_column(table_name: str, column_name: str) -> dict:
+    """输出某个字段的详细元数据（类型、默认值、约束等）。"""
+    connector = get_connector()
+    return connector.describe_column(table_name, column_name)

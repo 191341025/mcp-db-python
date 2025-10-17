@@ -3,15 +3,18 @@
 from tinyrpc.dispatch import RPCDispatcher
 
 from tools.schema_tools import (
+    describe_column,
+    find_foreign_keys,
+    get_index_info,
     get_table_schema,
     get_table_stats,
-    get_index_info,
-    find_foreign_keys,
+    get_triggers,
     list_databases,
     list_tables,
     list_views,
+    search_columns,
 )
-from tools.query_tools import get_procedure_definition, run_query
+from tools.query_tools import explain_query, get_procedure_definition, run_query, sample_rows
 
 
 def register_schema_tools(dispatcher: RPCDispatcher) -> None:
@@ -27,6 +30,14 @@ def register_schema_tools(dispatcher: RPCDispatcher) -> None:
         return find_foreign_keys(table_name=tableName)
 
     dispatcher.add_method(find_foreign_keys_rpc, name="findForeignKeys")
+    dispatcher.add_method(get_triggers, name="getTriggers")
+    dispatcher.add_method(search_columns, name="searchColumns")
+
+    def describe_column_rpc(tableName: str, columnName: str):
+        """RPC 包装：描述指定表字段的元数据。"""
+        return describe_column(table_name=tableName, column_name=columnName)
+
+    dispatcher.add_method(describe_column_rpc, name="describeColumn")
 
 
 def register_query_tools(dispatcher: RPCDispatcher) -> None:
@@ -36,8 +47,18 @@ def register_query_tools(dispatcher: RPCDispatcher) -> None:
     def get_procedure_definition_rpc(procedureName: str):
         return get_procedure_definition(procedureName)
 
+    def sample_rows_rpc(tableName: str, limit: int = 5):
+        """RPC 包装：抽样指定表数据行。"""
+        return sample_rows(table_name=tableName, limit=limit)
+
+    def explain_query_rpc(sql: str, params=None):
+        """RPC 包装：执行 EXPLAIN 并返回计划。"""
+        return explain_query(sql, params=params)
+
     dispatcher.add_method(run_query_rpc, name="runQuery")
     dispatcher.add_method(get_procedure_definition_rpc, name="getProcedureDefinition")
+    dispatcher.add_method(sample_rows_rpc, name="sampleRows")
+    dispatcher.add_method(explain_query_rpc, name="explainQuery")
 
 
 def register_all_tools(dispatcher: RPCDispatcher) -> None:

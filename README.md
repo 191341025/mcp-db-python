@@ -69,11 +69,11 @@ The console logs `MCP Python Server started`, after which MCP-aware clients or c
 | `getTableStats` | 汇总表的行数与数据/索引大小等统计信息 / Return row counts and size statistics for tables. | 已实现 / Completed |
 | `getIndexInfo` | 查看表上索引的列、类型与唯一性 / Inspect indexes for columns, kinds, and uniqueness. | 已实现 / Completed |
 | `findForeignKeys` | 列出外键及其关联关系 / List foreign-key constraints and relationships. | 已实现 / Completed |
-| `getTriggers` | 返回触发器列表与定义 / Fetch trigger listings and definitions. | 未开发 / Planned |
-| `sampleRows` | 抽样返回指定表的若干数据行 / Sample a handful of rows from a table. | 未开发 / Planned |
-| `searchColumns` | 关键字搜索列名或注释 / Search column names/comments by keyword. | 未开发 / Planned |
-| `describeColumn` | 输出字段类型、默认值与约束细节 / Provide type, defaults, and constraint details for a column. | 未开发 / Planned |
-| `explainQuery` | 对只读 SQL 执行 EXPLAIN，分析执行计划 / Run EXPLAIN on read-only SQL to inspect plans. | 未开发 / Planned |
+| `getTriggers` | 返回触发器列表与定义 / Fetch trigger listings and definitions. | 已实现 / Completed |
+| `sampleRows` | 抽样返回指定表的若干数据行 / Sample a handful of rows from a table. | 已实现 / Completed |
+| `searchColumns` | 关键字搜索列名或注释 / Search column names/comments by keyword. | 已实现 / Completed |
+| `describeColumn` | 输出字段类型、默认值与约束细节 / Provide type, defaults, and constraint details for a column. | 已实现 / Completed |
+| `explainQuery` | 对只读 SQL 执行 EXPLAIN，分析执行计划 / Run EXPLAIN on read-only SQL to inspect plans. | 已实现 / Completed |
 | `listProcedures` | 罗列存储过程或函数名称 / List stored procedures and functions. | 未开发 / Planned |
 | `listUsers` | 汇总实例中用户与权限信息（需相应权限） / Summarize users and privileges (where permitted). | 未开发 / Planned |
 | `getServerStatus` | 返回版本、连接数、支持引擎等服务器状态 / Return server status such as version, connections, engines. | 未开发 / Planned |

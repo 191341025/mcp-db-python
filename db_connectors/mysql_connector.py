@@ -237,6 +237,147 @@ class MySQLConnector:
             )
         return foreign_keys
 
+    def get_triggers(self, table_name: Optional[str] = None):
+        """
+        返回触发器列表及定义内容，可选按表名过滤。
+        """
+        if table_name is not None and not table_name.strip():
+            raise ValueError("table_name must not be blank when provided.")
+
+        self.ensure_connection()
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            sql = """
+                SELECT
+                    TRIGGER_NAME AS trigger_name,
+                    EVENT_MANIPULATION AS event_manipulation,
+                    EVENT_OBJECT_TABLE AS event_table,
+                    ACTION_TIMING AS action_timing,
+                    ACTION_STATEMENT AS action_statement,
+                    CREATED AS created_at
+                FROM information_schema.TRIGGERS
+                WHERE TRIGGER_SCHEMA = %s
+            """
+            params = [DB_CONFIG["database"]]
+            if table_name:
+                sql += " AND EVENT_OBJECT_TABLE = %s"
+                params.append(table_name)
+            sql += " ORDER BY EVENT_OBJECT_TABLE, TRIGGER_NAME"
+
+            cursor.execute(sql, params)
+            return cursor.fetchall()
+        finally:
+            cursor.close()
+
+    def sample_rows(self, table_name: str, limit: int = 5):
+        """
+        抽样返回指定表的若干行数据，默认限制 5 行。
+        """
+        if not table_name or not table_name.strip():
+            raise ValueError("table_name is required for sampling rows.")
+        if "`" in table_name or ";" in table_name:
+            raise ValueError("Invalid characters in table_name.")
+        if limit <= 0:
+            raise ValueError("limit must be a positive integer.")
+
+        self.ensure_connection()
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            query = f"SELECT * FROM `{table_name}` LIMIT %s"
+            cursor.execute(query, (limit,))
+            rows = cursor.fetchall()
+            return {
+                "columns": cursor.column_names,
+                "rows": rows,
+            }
+        finally:
+            cursor.close()
+
+    def search_columns(self, keyword: str):
+        """
+        通过关键字搜索列名或列注释，帮助快速定位字段。
+        """
+        if not keyword or not keyword.strip():
+            raise ValueError("keyword must not be empty for column search.")
+
+        like_pattern = f"%{keyword.strip()}%"
+
+        self.ensure_connection()
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                """
+                SELECT
+                    TABLE_NAME AS table_name,
+                    COLUMN_NAME AS column_name,
+                    COLUMN_TYPE AS column_type,
+                    IS_NULLABLE AS is_nullable,
+                    COLUMN_DEFAULT AS column_default,
+                    COLUMN_COMMENT AS column_comment
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = %s
+                  AND (COLUMN_NAME LIKE %s OR COLUMN_COMMENT LIKE %s)
+                ORDER BY TABLE_NAME, ORDINAL_POSITION
+                """,
+                (DB_CONFIG["database"], like_pattern, like_pattern),
+            )
+            return cursor.fetchall()
+        finally:
+            cursor.close()
+
+    def describe_column(self, table_name: str, column_name: str):
+        """
+        输出指定字段的类型、默认值与约束等详细信息。
+        """
+        if not table_name or not table_name.strip():
+            raise ValueError("table_name is required for column description.")
+        if not column_name or not column_name.strip():
+            raise ValueError("column_name is required for column description.")
+
+        self.ensure_connection()
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                """
+                SELECT
+                    TABLE_NAME AS table_name,
+                    COLUMN_NAME AS column_name,
+                    COLUMN_TYPE AS column_type,
+                    IS_NULLABLE AS is_nullable,
+                    COLUMN_DEFAULT AS column_default,
+                    COLUMN_KEY AS column_key,
+                    EXTRA AS extra,
+                    COLUMN_COMMENT AS column_comment,
+                    CHARACTER_MAXIMUM_LENGTH AS char_length,
+                    NUMERIC_PRECISION AS numeric_precision,
+                    NUMERIC_SCALE AS numeric_scale
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = %s
+                  AND TABLE_NAME = %s
+                  AND COLUMN_NAME = %s
+                """,
+                (DB_CONFIG["database"], table_name, column_name),
+            )
+            return cursor.fetchone() or {}
+        finally:
+            cursor.close()
+
+    def explain_query(self, sql: str, params=None):
+        """
+        对只读 SQL 执行 EXPLAIN，返回执行计划信息。
+        """
+        if not self.is_read_only_query(sql):
+            raise ValueError("Only read-only SQL statements can be explained.")
+
+        self.ensure_connection()
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            explain_sql = f"EXPLAIN {sql}"
+            cursor.execute(explain_sql, params or ())
+            return cursor.fetchall()
+        finally:
+            cursor.close()
+
     def is_read_only_query(self, sql: str) -> bool:
         """
         校验 SQL 是否为安全的只读语句，禁止多语句与写操作。
