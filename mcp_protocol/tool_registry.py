@@ -5,6 +5,7 @@ from tinyrpc.dispatch import RPCDispatcher
 from tools.schema_tools import (
     get_table_schema,
     get_table_stats,
+    get_index_info,
     list_databases,
     list_tables,
     list_views,
@@ -18,6 +19,7 @@ def register_schema_tools(dispatcher: RPCDispatcher) -> None:
     dispatcher.add_method(list_tables, name="listTables")
     dispatcher.add_method(get_table_schema, name="getTableSchema")
     dispatcher.add_method(get_table_stats, name="getTableStats")
+    dispatcher.add_method(get_index_info, name="getIndexInfo")
 
 
 def register_query_tools(dispatcher: RPCDispatcher) -> None:

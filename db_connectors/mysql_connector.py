@@ -149,6 +149,40 @@ class MySQLConnector:
         finally:
             cursor.close()
 
+    def get_index_info(self, table_name: str):
+        """
+        查询指定表的索引结构，包含索引名、列、类型以及唯一性等信息。
+        """
+        if not table_name:
+            raise ValueError("table_name is required for index inspection.")
+
+        self.ensure_connection()
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            cursor.execute(f"SHOW INDEX FROM `{table_name}`;")
+            rows = cursor.fetchall()
+        finally:
+            cursor.close()
+
+        indexes = []
+        for row in rows:
+            indexes.append(
+                {
+                    "indexName": row.get("Key_name"),
+                    "columnName": row.get("Column_name"),
+                    "seqInIndex": row.get("Seq_in_index"),
+                    "isUnique": row.get("Non_unique") == 0,
+                    "indexType": row.get("Index_type"),
+                    "collation": row.get("Collation"),
+                    "cardinality": row.get("Cardinality"),
+                    "subPart": row.get("Sub_part"),
+                    "packed": row.get("Packed"),
+                    "nullAllowed": row.get("Null"),
+                    "indexComment": row.get("Comment"),
+                }
+            )
+        return indexes
+
     def is_read_only_query(self, sql: str) -> bool:
         """
         校验 SQL 是否为安全的只读语句，禁止多语句与写操作。

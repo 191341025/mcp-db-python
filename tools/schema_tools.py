@@ -48,3 +48,9 @@ def get_table_stats() -> list:
     """汇总当前数据库下各表的统计信息（行数、数据大小等）。"""
     connector = get_connector()
     return connector.get_table_stats()
+
+
+def get_index_info(table_name: str) -> list:
+    """查看指定数据表的索引详情，包括列、顺序、唯一性等。"""
+    connector = get_connector()
+    return connector.get_index_info(table_name)
