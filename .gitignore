@@ -2,6 +2,7 @@
 # .env
 .env-66
 venv/
+.gitignore
 # Python bytecode caches
 __pycache__/
 *.py[cod]
