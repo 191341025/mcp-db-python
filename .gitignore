@@ -1,0 +1,6 @@
+# Local environment config files
+.env
+venv/
+# Python bytecode caches
+__pycache__/
+*.py[cod]
