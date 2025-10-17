@@ -54,3 +54,9 @@ def get_index_info(table_name: str) -> list:
     """查看指定数据表的索引详情，包括列、顺序、唯一性等。"""
     connector = get_connector()
     return connector.get_index_info(table_name)
+
+
+def find_foreign_keys(table_name: Optional[str] = None) -> list:
+    """列出数据库中的外键约束，可按表名筛选具体关联。"""
+    connector = get_connector()
+    return connector.find_foreign_keys(table_name)

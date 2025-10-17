@@ -1,5 +1,7 @@
 # MySQL connector adapter
 # db_connectors/mysql_connector.py
+from typing import Optional
+
 import mysql.connector
 from mysql.connector import Error
 from config.settings import DB_CONFIG
@@ -182,6 +184,58 @@ class MySQLConnector:
                 }
             )
         return indexes
+
+    def find_foreign_keys(self, table_name: Optional[str] = None):
+        """
+        列出当前库中外键约束，可按表名筛选以查看具体关联关系。
+        """
+        if table_name is not None and not table_name.strip():
+            raise ValueError("table_name must not be blank when provided.")
+
+        self.ensure_connection()
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            sql = """
+                SELECT
+                    kcu.CONSTRAINT_NAME AS constraint_name,
+                    kcu.TABLE_NAME AS table_name,
+                    kcu.COLUMN_NAME AS column_name,
+                    kcu.REFERENCED_TABLE_NAME AS referenced_table,
+                    kcu.REFERENCED_COLUMN_NAME AS referenced_column,
+                    rc.UPDATE_RULE AS update_rule,
+                    rc.DELETE_RULE AS delete_rule
+                FROM information_schema.KEY_COLUMN_USAGE AS kcu
+                JOIN information_schema.REFERENTIAL_CONSTRAINTS AS rc
+                  ON kcu.CONSTRAINT_SCHEMA = rc.CONSTRAINT_SCHEMA
+                 AND kcu.CONSTRAINT_NAME = rc.CONSTRAINT_NAME
+                WHERE kcu.CONSTRAINT_SCHEMA = %s
+                  AND kcu.REFERENCED_TABLE_NAME IS NOT NULL
+            """
+            params = [DB_CONFIG["database"]]
+            if table_name:
+                sql += " AND kcu.TABLE_NAME = %s"
+                params.append(table_name)
+            sql += " ORDER BY kcu.TABLE_NAME, kcu.CONSTRAINT_NAME, kcu.ORDINAL_POSITION"
+
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+        finally:
+            cursor.close()
+
+        foreign_keys = []
+        for row in rows:
+            foreign_keys.append(
+                {
+                    "constraintName": row.get("constraint_name"),
+                    "tableName": row.get("table_name"),
+                    "columnName": row.get("column_name"),
+                    "referencedTable": row.get("referenced_table"),
+                    "referencedColumn": row.get("referenced_column"),
+                    "updateRule": row.get("update_rule"),
+                    "deleteRule": row.get("delete_rule"),
+                }
+            )
+        return foreign_keys
 
     def is_read_only_query(self, sql: str) -> bool:
         """

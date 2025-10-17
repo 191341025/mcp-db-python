@@ -68,7 +68,7 @@ The console logs `MCP Python Server started`, after which MCP-aware clients or c
 | `listViews` | 查找视图名称并返回定义摘要 / Enumerate views with definition snippets. | 已实现 / Completed |
 | `getTableStats` | 汇总表的行数与数据/索引大小等统计信息 / Return row counts and size statistics for tables. | 已实现 / Completed |
 | `getIndexInfo` | 查看表上索引的列、类型与唯一性 / Inspect indexes for columns, kinds, and uniqueness. | 已实现 / Completed |
-| `findForeignKeys` | 列出外键及其关联关系 / List foreign-key constraints and relationships. | 未开发 / Planned |
+| `findForeignKeys` | 列出外键及其关联关系 / List foreign-key constraints and relationships. | 已实现 / Completed |
 | `getTriggers` | 返回触发器列表与定义 / Fetch trigger listings and definitions. | 未开发 / Planned |
 | `sampleRows` | 抽样返回指定表的若干数据行 / Sample a handful of rows from a table. | 未开发 / Planned |
 | `searchColumns` | 关键字搜索列名或注释 / Search column names/comments by keyword. | 未开发 / Planned |

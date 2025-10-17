@@ -6,6 +6,7 @@ from tools.schema_tools import (
     get_table_schema,
     get_table_stats,
     get_index_info,
+    find_foreign_keys,
     list_databases,
     list_tables,
     list_views,
@@ -20,6 +21,12 @@ def register_schema_tools(dispatcher: RPCDispatcher) -> None:
     dispatcher.add_method(get_table_schema, name="getTableSchema")
     dispatcher.add_method(get_table_stats, name="getTableStats")
     dispatcher.add_method(get_index_info, name="getIndexInfo")
+
+    def find_foreign_keys_rpc(tableName=None):
+        """RPC 包装：把驼峰参数名转换为内部所需的蛇形命名。"""
+        return find_foreign_keys(table_name=tableName)
+
+    dispatcher.add_method(find_foreign_keys_rpc, name="findForeignKeys")
 
 
 def register_query_tools(dispatcher: RPCDispatcher) -> None:
