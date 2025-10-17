@@ -1,16 +1,23 @@
 # 管理可暴露的 MCP 工具
 # mcp_protocol/tool_registry.py
+from typing import Optional
+
 from tinyrpc.dispatch import RPCDispatcher
 
 from tools.schema_tools import (
+    compare_schemas,
     describe_column,
     find_foreign_keys,
+    generate_ddl,
     get_index_info,
+    get_server_status,
     get_table_schema,
     get_table_stats,
     get_triggers,
     list_databases,
+    list_procedures,
     list_tables,
+    list_users,
     list_views,
     search_columns,
 )
@@ -25,7 +32,7 @@ def register_schema_tools(dispatcher: RPCDispatcher) -> None:
     dispatcher.add_method(get_table_stats, name="getTableStats")
     dispatcher.add_method(get_index_info, name="getIndexInfo")
 
-    def find_foreign_keys_rpc(tableName=None):
+    def find_foreign_keys_rpc(tableName: Optional[str] = None):
         """RPC 包装：把驼峰参数名转换为内部所需的蛇形命名。"""
         return find_foreign_keys(table_name=tableName)
 
@@ -38,6 +45,30 @@ def register_schema_tools(dispatcher: RPCDispatcher) -> None:
         return describe_column(table_name=tableName, column_name=columnName)
 
     dispatcher.add_method(describe_column_rpc, name="describeColumn")
+
+    def list_procedures_rpc(includeFunctions: bool = True):
+        """RPC 包装：控制是否同时返回函数。"""
+        return list_procedures(include_functions=includeFunctions)
+
+    dispatcher.add_method(list_procedures_rpc, name="listProcedures")
+    dispatcher.add_method(list_users, name="listUsers")
+    dispatcher.add_method(get_server_status, name="getServerStatus")
+
+    def compare_schemas_rpc(
+        schemaA: str,
+        schemaB: str,
+        tableName: Optional[str] = None,
+    ):
+        """RPC 包装：对比两个库或指定表的结构差异。"""
+        return compare_schemas(schema_a=schemaA, schema_b=schemaB, table_name=tableName)
+
+    dispatcher.add_method(compare_schemas_rpc, name="compareSchemas")
+
+    def generate_ddl_rpc(tableName: str):
+        """RPC 包装：输出指定表的 CREATE TABLE 语句。"""
+        return generate_ddl(table_name=tableName)
+
+    dispatcher.add_method(generate_ddl_rpc, name="generateDDL")
 
 
 def register_query_tools(dispatcher: RPCDispatcher) -> None:

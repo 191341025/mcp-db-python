@@ -378,6 +378,207 @@ class MySQLConnector:
         finally:
             cursor.close()
 
+    def list_procedures(self, include_functions: bool = True):
+        """
+        罗列当前数据库下的存储过程（以及可选的函数）名称及时间信息。
+        """
+        self.ensure_connection()
+        routine_types = ("PROCEDURE", "FUNCTION") if include_functions else ("PROCEDURE",)
+        placeholders = ", ".join(["%s"] * len(routine_types))
+
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                f"""
+                SELECT
+                    ROUTINE_NAME AS routine_name,
+                    ROUTINE_TYPE AS routine_type,
+                    CREATED AS created_at,
+                    LAST_ALTERED AS last_altered
+                FROM information_schema.ROUTINES
+                WHERE ROUTINE_SCHEMA = %s
+                  AND ROUTINE_TYPE IN ({placeholders})
+                ORDER BY ROUTINE_TYPE, ROUTINE_NAME
+                """,
+                (DB_CONFIG["database"], *routine_types),
+            )
+            return cursor.fetchall()
+        finally:
+            cursor.close()
+
+    def list_users(self):
+        """
+        汇总实例用户列表及账号状态（需具备 mysql.user 查询权限）。
+        """
+        self.ensure_connection()
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                """
+                SELECT
+                    User AS user,
+                    Host AS host,
+                    IFNULL(plugin, '') AS auth_plugin,
+                    IFNULL(account_locked, 'N') AS account_locked,
+                    IFNULL(password_expired, 'N') AS password_expired
+                FROM mysql.user
+                ORDER BY User, Host
+                """
+            )
+            return cursor.fetchall()
+        except Error as exc:
+            raise PermissionError(
+                "Failed to read mysql.user. Ensure the account has sufficient privileges."
+            ) from exc
+        finally:
+            cursor.close()
+
+    def get_server_status(self):
+        """
+        返回服务器版本、连接数、运行时长以及支持引擎等状态信息。
+        """
+        self.ensure_connection()
+
+        cursor = self.connection.cursor(dictionary=True)
+        status = {}
+        try:
+            cursor.execute("SELECT VERSION() AS version;")
+            row = cursor.fetchone()
+            status["version"] = row.get("version") if row else None
+
+            cursor.execute("SHOW STATUS LIKE 'Threads_connected';")
+            row = cursor.fetchone()
+            status["threadsConnected"] = row.get("Value") if row else None
+
+            cursor.execute("SHOW STATUS LIKE 'Uptime';")
+            row = cursor.fetchone()
+            status["uptimeSeconds"] = row.get("Value") if row else None
+        finally:
+            cursor.close()
+
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            cursor.execute("SHOW ENGINES;")
+            status["engines"] = cursor.fetchall()
+        finally:
+            cursor.close()
+
+        return status
+
+    def compare_schemas(
+        self, schema_a: str, schema_b: str, table_name: Optional[str] = None
+    ):
+        """
+        比较两个数据库（或指定表）的字段差异，输出在各自独有的表与字段差别。
+        """
+        if not schema_a or not schema_b:
+            raise ValueError("schema_a and schema_b are required for comparison.")
+        if table_name is not None and not table_name.strip():
+            raise ValueError("table_name must not be blank when provided.")
+
+        self.ensure_connection()
+
+        def load_columns(schema: str) -> dict:
+            cursor_local = self.connection.cursor(dictionary=True)
+            try:
+                cursor_local.execute(
+                    """
+                    SELECT
+                        TABLE_NAME AS table_name,
+                        COLUMN_NAME AS column_name,
+                        COLUMN_TYPE AS column_type,
+                        IS_NULLABLE AS is_nullable,
+                        COLUMN_DEFAULT AS column_default,
+                        COLUMN_KEY AS column_key,
+                        EXTRA AS extra,
+                        ORDINAL_POSITION AS ordinal_position
+                    FROM information_schema.COLUMNS
+                    WHERE TABLE_SCHEMA = %s
+                    ORDER BY TABLE_NAME, ORDINAL_POSITION
+                    """,
+                    (schema,),
+                )
+                rows_local = cursor_local.fetchall()
+            finally:
+                cursor_local.close()
+
+            tables = {}
+            for row_local in rows_local:
+                table = row_local["table_name"]
+                if table_name and table != table_name:
+                    continue
+                tables.setdefault(table, {})[row_local["column_name"]] = row_local
+            return tables
+
+        columns_a = load_columns(schema_a)
+        columns_b = load_columns(schema_b)
+
+        if table_name:
+            tables_to_check = {table_name}
+        else:
+            tables_to_check = set(columns_a.keys()) | set(columns_b.keys())
+
+        only_in_a = sorted(t for t in tables_to_check if t in columns_a and t not in columns_b)
+        only_in_b = sorted(t for t in tables_to_check if t in columns_b and t not in columns_a)
+
+        diffs = {}
+        for table in sorted(tables_to_check):
+            cols_a = columns_a.get(table, {})
+            cols_b = columns_b.get(table, {})
+            if not cols_a or not cols_b:
+                continue
+
+            col_names = set(cols_a.keys()) | set(cols_b.keys())
+            table_diff = {
+                "onlyInA": sorted(name for name in col_names if name in cols_a and name not in cols_b),
+                "onlyInB": sorted(name for name in col_names if name in cols_b and name not in cols_a),
+                "mismatchedColumns": [],
+            }
+            for col in sorted(col_names):
+                if col not in cols_a or col not in cols_b:
+                    continue
+                meta_a = cols_a[col]
+                meta_b = cols_b[col]
+                comparable_fields = ("column_type", "is_nullable", "column_default", "column_key", "extra")
+                deviations = {}
+                for field in comparable_fields:
+                    val_a = meta_a.get(field)
+                    val_b = meta_b.get(field)
+                    if val_a != val_b:
+                        deviations[field] = {"schemaA": val_a, "schemaB": val_b}
+                if deviations:
+                    table_diff["mismatchedColumns"].append({"column": col, "differences": deviations})
+            if table_diff["onlyInA"] or table_diff["onlyInB"] or table_diff["mismatchedColumns"]:
+                diffs[table] = table_diff
+
+        return {
+            "schemaA": schema_a,
+            "schemaB": schema_b,
+            "onlyInA": only_in_a,
+            "onlyInB": only_in_b,
+            "tableDiffs": diffs,
+        }
+
+    def generate_ddl(self, table_name: str):
+        """
+        返回指定表的 CREATE TABLE 语句，便于备份或迁移。
+        """
+        if not table_name or not table_name.strip():
+            raise ValueError("table_name is required to generate DDL.")
+        if "`" in table_name or ";" in table_name:
+            raise ValueError("Invalid characters in table_name.")
+
+        self.ensure_connection()
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(f"SHOW CREATE TABLE `{table_name}`;")
+            row = cursor.fetchone()
+            if not row:
+                return {}
+            return {"table": row[0], "createStatement": row[1]}
+        finally:
+            cursor.close()
+
     def is_read_only_query(self, sql: str) -> bool:
         """
         校验 SQL 是否为安全的只读语句，禁止多语句与写操作。

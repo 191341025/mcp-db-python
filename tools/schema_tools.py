@@ -78,3 +78,33 @@ def describe_column(table_name: str, column_name: str) -> dict:
     """输出某个字段的详细元数据（类型、默认值、约束等）。"""
     connector = get_connector()
     return connector.describe_column(table_name, column_name)
+
+
+def list_procedures(include_functions: bool = True) -> list:
+    """罗列当前库的存储过程及（可选）函数。"""
+    connector = get_connector()
+    return connector.list_procedures(include_functions=include_functions)
+
+
+def list_users() -> list:
+    """汇总实例用户及账号状态信息（需要足够权限）。"""
+    connector = get_connector()
+    return connector.list_users()
+
+
+def get_server_status() -> dict:
+    """返回服务器版本、连接数、可用引擎等状态数据。"""
+    connector = get_connector()
+    return connector.get_server_status()
+
+
+def compare_schemas(schema_a: str, schema_b: str, table_name: Optional[str] = None) -> dict:
+    """比较两个数据库（或指定表）的结构差异。"""
+    connector = get_connector()
+    return connector.compare_schemas(schema_a, schema_b, table_name=table_name)
+
+
+def generate_ddl(table_name: str) -> dict:
+    """输出指定表的 CREATE TABLE 语句。"""
+    connector = get_connector()
+    return connector.generate_ddl(table_name)

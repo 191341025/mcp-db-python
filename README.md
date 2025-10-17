@@ -74,11 +74,11 @@ The console logs `MCP Python Server started`, after which MCP-aware clients or c
 | `searchColumns` | 关键字搜索列名或注释 / Search column names/comments by keyword. | 已实现 / Completed |
 | `describeColumn` | 输出字段类型、默认值与约束细节 / Provide type, defaults, and constraint details for a column. | 已实现 / Completed |
 | `explainQuery` | 对只读 SQL 执行 EXPLAIN，分析执行计划 / Run EXPLAIN on read-only SQL to inspect plans. | 已实现 / Completed |
-| `listProcedures` | 罗列存储过程或函数名称 / List stored procedures and functions. | 未开发 / Planned |
-| `listUsers` | 汇总实例中用户与权限信息（需相应权限） / Summarize users and privileges (where permitted). | 未开发 / Planned |
-| `getServerStatus` | 返回版本、连接数、支持引擎等服务器状态 / Return server status such as version, connections, engines. | 未开发 / Planned |
-| `compareSchemas` | 比较两个数据库或表的结构差异 / Compare schema structures between databases/tables. | 未开发 / Planned |
-| `generateDDL` | 输出完整的 CREATE TABLE 语句 / Generate full CREATE TABLE DDL. | 未开发 / Planned |
+| `listProcedures` | 罗列存储过程或函数名称 / List stored procedures and functions. | 已实现 / Completed |
+| `listUsers` | 汇总实例中用户与权限信息（需相应权限） / Summarize users and privileges (where permitted). | 已实现 / Completed |
+| `getServerStatus` | 返回版本、连接数、支持引擎等服务器状态 / Return server status such as version, connections, engines. | 已实现 / Completed |
+| `compareSchemas` | 比较两个数据库或表的结构差异 / Compare schema structures between databases/tables. | 已实现 / Completed |
+| `generateDDL` | 输出完整的 CREATE TABLE 语句 / Generate full CREATE TABLE DDL. | 已实现 / Completed |
 
 ## 配置说明 | Configuration
 
