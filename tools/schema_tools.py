@@ -21,19 +21,19 @@ def get_connector() -> MySQLConnector:
 
 
 def list_tables() -> list:
-    """列出数据库中的所有表"""
+    """列出数据库中的所有表。"""
     connector = get_connector()
     return connector.list_tables()
 
 
 def get_table_schema(table_name: str) -> list:
-    """获取指定表的字段结构"""
+    """获取指定表的字段结构。"""
     connector = get_connector()
     return connector.get_table_schema(table_name)
 
 
 def list_databases() -> list:
-    """列出当前连接可访问的数据库"""
+    """列出当前连接可访问的数据库。"""
     connector = get_connector()
     return connector.list_databases()
 
@@ -43,3 +43,8 @@ def list_views(snippet_length: int = 160) -> list:
     connector = get_connector()
     return connector.list_views(snippet_length=snippet_length)
 
+
+def get_table_stats() -> list:
+    """汇总当前数据库下各表的统计信息（行数、数据大小等）。"""
+    connector = get_connector()
+    return connector.get_table_stats()

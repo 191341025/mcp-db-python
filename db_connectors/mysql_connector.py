@@ -121,6 +121,34 @@ class MySQLConnector:
         finally:
             cursor.close()
 
+    def get_table_stats(self):
+        """
+        汇总当前数据库下每张表的行数、空间占用等统计信息。
+        """
+        self.ensure_connection()
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                """
+                SELECT
+                    TABLE_NAME AS table_name,
+                    ENGINE AS engine,
+                    TABLE_ROWS AS table_rows,
+                    DATA_LENGTH AS data_length,
+                    INDEX_LENGTH AS index_length,
+                    DATA_FREE AS data_free,
+                    CREATE_TIME AS create_time,
+                    UPDATE_TIME AS update_time
+                FROM information_schema.TABLES
+                WHERE TABLE_SCHEMA = %s
+                ORDER BY TABLE_NAME;
+                """,
+                (DB_CONFIG["database"],),
+            )
+            return cursor.fetchall()
+        finally:
+            cursor.close()
+
     def is_read_only_query(self, sql: str) -> bool:
         """
         校验 SQL 是否为安全的只读语句，禁止多语句与写操作。
